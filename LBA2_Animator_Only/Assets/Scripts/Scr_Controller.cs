@@ -59,13 +59,6 @@ public class Scr_Controller : MonoBehaviour
         public short parentVertex;
         public short numOfVertices;
         public short padding;
-
-        //public Matrix4x4 theMatrix;
-        //public Vector3 boneRot;
-
-        //public float rotX;
-        //public float rotY;
-        //public float rotZ;
         };
 
     [System.Serializable]
@@ -98,10 +91,6 @@ public class Scr_Controller : MonoBehaviour
 
         public short padding1;
 
-        //public short[] bonesX; // rotation / translation X
-        //public short[] bonesY; // rotation / translation Y
-        //public short[] bonesZ; // rotation / translation Z
-
         public short[] bonesType;
         public float[] bonesX;
         public float[] bonesY;
@@ -130,40 +119,6 @@ public class Scr_Controller : MonoBehaviour
     private Color[] newColors;
     private Color[] oldColors; // used for highlighting the model
 
-    // for mesh colliders
-    //public Vector3[,] vertsBones = new Vector3[30,100]; // each bone has at least 100 verts
-
-    // not super efficient, but it'll do for now
-        /*public Vector3[] vertsBone0 = new Vector3[200];
-        public Vector3[] vertsBone1 = new Vector3[200];
-        public Vector3[] vertsBone2 = new Vector3[200];
-        public Vector3[] vertsBone3 = new Vector3[200];
-        public Vector3[] vertsBone4;
-        public Vector3[] vertsBone5;
-        public Vector3[] vertsBone6;
-        public Vector3[] vertsBone7;
-        public Vector3[] vertsBone8;
-        public Vector3[] vertsBone9;
-        public Vector3[] vertsBone10;
-        public Vector3[] vertsBone11;
-        public Vector3[] vertsBone12;
-        public Vector3[] vertsBone13;
-        public Vector3[] vertsBone14;
-        public Vector3[] vertsBone15;
-        public Vector3[] vertsBone16;
-        public Vector3[] vertsBone17;
-        public Vector3[] vertsBone18;
-        public Vector3[] vertsBone19;
-        public Vector3[] vertsBone20;*/
-
-    /*private Vector3[] newVertices = new Vector3[530]; // Fill up the vertex array.
-    private Vector3[] newNormals = new Vector3[530]; // Fill up the normal array.
-    private Vector3[,] newTriangleIndices = new int[530 * 3]; // Fill up the triangle vertex indices array.
-    private int[] newTriangles = new Vector3[530, 3]; // Fill up the triangle vertex positions array.
-    private Color[] newColors = new Color[530]; // Fill up the color array.*/
-
-    //public int[] rotTable360 = new int[359]; // rotation tables to convert from 360 degrees to 4096 LBA2 scene units
-    //public int[] rotTable4096 = new int[359]; // this entire process has been a complete bitch for years - this really is the only way
 
 
     public short frames = 1;
@@ -229,10 +184,6 @@ public class Scr_Controller : MonoBehaviour
             {
             for (int j = 0; j < 20; j++)
                 {
-                /*myFrames[j].bonesX[i] = new short();
-                myFrames[j].bonesY[i] = new short();
-                myFrames[j].bonesZ[i] = new short();*/
-
                 myFrames[j].bonesType[i] = new short(); // fill arrays
                 myFrames[j].bonesX[i] = new float();
                 myFrames[j].bonesY[i] = new float();
@@ -249,11 +200,6 @@ public class Scr_Controller : MonoBehaviour
         singleFrame.bonesZ = new float[30];
 
         singleFrame.bonesQuat = new Quaternion[30];
-
-        /*vertsBone0 = new Vector3[200];
-        vertsBone1 = new Vector3[200];
-        vertsBone2 = new Vector3[200];
-        vertsBone3 = new Vector3[200];*/
 
 
 
@@ -312,13 +258,6 @@ public class Scr_Controller : MonoBehaviour
         if (animPlaying != true)
             myFrames[currentFrame - 1].speed = (short)GameObject.Find("Slider_Frame_Speed").GetComponent<Slider>().value;
 
-        //frameSpeedAltered = myFrames[currentFrame - 1].speed;
-
-        /*if (frameSpeedAltered != myFrames[currentFrame - 1].speed)
-            {
-
-            };*/
-
         // right mouse button
         if (Input.GetMouseButton(1))
             {
@@ -346,19 +285,9 @@ public class Scr_Controller : MonoBehaviour
 
             // the bigger the frame speed, the longer the frame lasts
             frameTime += (Time.deltaTime);
-            //frameTime += (myFrames[currentFrame - 1].speed * Time.deltaTime) * frameScale;
-            //frameTime += (Time.deltaTime * (myFrames[currentFrame - 1].speed));
-
-            //frameTime += (myFrames[currentFrame - 1].speed / frameScale);
-            //frameTime += (myFrames[currentFrame - 1].speed * frameScale);
-            //frameTime += (myFrames[currentFrame - 1].speed * frameScale) * myFrames[currentFrame - 1].speed;
-            //frameTime += (myFrames[currentFrame - 1].speed * frameScale) / ((myFrames[currentFrame - 1].speed * frameScale)*10);
 
             // go to next frame
-            //if (frameTime > 1.0f)
             if (frameTime > (myFrames[currentFrame - 1].speed * frameScale)) // best one
-            //if (frameTime > (myFrames[currentFrame - 0].speed * frameScale))
-            //if (frameTime > (Time.deltaTime / myFrames[currentFrame - 1].speed * frameScale))
                 {
                 currentFrame += 1;
 
@@ -475,13 +404,6 @@ public class Scr_Controller : MonoBehaviour
                             // draw a line indicating we have that vertex
                             Debug.DrawLine(Vector3.zero, theMesh.vertices[i]);
 
-
-                            // color the vertex red, indicating we can select it
-                            //oldColors[i].r = 255;
-                            //update the colors
-                            //theMesh.colors = oldColors;
-
-
                             if (Input.GetMouseButton(0))
                                 {
                                 // check the vertex's parent and rotate that specific bone - exclude the first two bones
@@ -511,19 +433,6 @@ public class Scr_Controller : MonoBehaviour
     public int[] getTriangleFromBone()
     {
         int[] myInt = new int[3];
-
-        // need to get polygon whose vertex indices are linked to the same bone
-
-        /*if (newVertices[myPolygons[0].V1].x == newVertices[myVerticesParent[2]].x &&
-            newVertices[myPolygons[0].V1].y == newVertices[myVerticesParent[2]].y &&
-            newVertices[myPolygons[0].V1].z == newVertices[myVerticesParent[2]].z)
-        {
-
-        }*/
-        
-        /*Debug.Log("px: " + newVertices[myPolygons[0].V1].x);
-        Debug.Log("py: " + newVertices[myPolygons[0].V1].y);
-        Debug.Log("pz: " + newVertices[myPolygons[0].V1].z);*/
 
         return myInt;
     }
@@ -620,12 +529,6 @@ public class Scr_Controller : MonoBehaviour
                 newVertices[i] = pos;
 
                 myVerticesParent[i] = theReader.ReadInt16();
-
-                /*if (myVerticesParent[i] == 3)
-                    {
-                    vertsBone3[currentVertex] = pos * vertexScale;
-                    currentVertex += 1;
-                    };*/
                 };
 
             // reset this variable
@@ -1095,22 +998,7 @@ public class Scr_Controller : MonoBehaviour
                 {
                     if (j != 0)
                     {
-
-
-                    // does this even work?
-                    /*if (i != 0)
-                        {
-                        myFrames[i].bonesQuat[j] = myFrames[i - 1].bonesQuat[j];
-                        };*/
-
-
-
                     myFrames[i].bonesType[j] = theReader.ReadInt16();
-
-                    // very similar to the way we exported our animation, except we do the reverse and divide instead of multiply
-                    /*myFrames[i].bonesX[j] = theReader.ReadInt16() / 11.333333f;
-                    myFrames[i].bonesY[j] = theReader.ReadInt16() / 11.333333f;
-                    myFrames[i].bonesZ[j] = theReader.ReadInt16() / 11.333333f;*/
 
                     if (myFrames[i].bonesType[j] == 0x00) // rotation
                         {
@@ -1181,24 +1069,6 @@ public class Scr_Controller : MonoBehaviour
                         myBinaryWriter.Write((Int16)0x00); // bone type: rotation
                         
                         GameObject bone = GameObject.Find("bone_helper_" + j.ToString());
-                        
-                        // https://forum.unity.com/threads/getting-objects-local-rotation-in-0-360-degrees-on-a-single-axis-consistently-without-flipping.374966/
-                        //Vector3 forwardVector = bone.transform.rotation * Vector3.forward;
-                        //float radianAngle = Mathf.Atan2(forwardVector.z, forwardVector.x);
-                        //float degreeAngle = radianAngle * Mathf.Rad2Deg;
-
-                        /*float rotX = (4096 - bone.transform.eulerAngles.x);
-                        float rotY = (4096 - bone.transform.eulerAngles.y);
-                        float rotZ = (4096 - bone.transform.eulerAngles.z);*/
-
-                        /*float rotX =  RoundAngle2(bone.transform.eulerAngles.x) * 11.333333f;
-                        float rotY =  RoundAngle2(bone.transform.eulerAngles.y) * 11.333333f;
-                        float rotZ =  RoundAngle2(bone.transform.eulerAngles.z) * 11.333333f;*/
-
-                        // best results thus far
-                        //myBinaryWriter.Write((Int16) bone.GetComponent<Scr_Bone_Helper>().finalX); // bone x
-                        //myBinaryWriter.Write((Int16) bone.GetComponent<Scr_Bone_Helper>().finalY); // bone y
-                        //myBinaryWriter.Write((Int16) bone.GetComponent<Scr_Bone_Helper>().finalZ); // bone z
 
                         // best results for framed animations
                         bone.GetComponent<Scr_Bone_Helper>().rotX = myFrames[i].bonesX[j];
