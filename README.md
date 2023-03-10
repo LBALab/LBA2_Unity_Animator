@@ -6,7 +6,16 @@ The original idea was to be able to animate the models within Blender and export
 An example on how my Unity program can be used.
 [![Watch the video](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Images/Video_1.png)](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Videos/LBA2_Animator_Demo.mp4)
 
-Though, there are still a few quirks that need fixing. Everything looks like melted plastic since the model colors are being shared across vertices instead of polygons. The time between each frame is still not perfect. So, animations will need to be tested within Yaz0r's LBA1 / LBA2 model viewer, which can be downloaded from the Magic Ball network. Sometimes, when attempting to click on a bone, either a nearby bone will be selected or none at all. I'm thinking about checking the barycentric coordinates within the currently selected triangle and returning the nearest vertex's bone. That way, selecting bones should be a little easier - as for now I just check the distance between the mouse position and the nearest vertex. It's decent! But, could be better! Here is the link to Yaz0r's program: https://www.magicball.net/downloads/programs/development/lba_model_viewer
+Fixes:
+- Colors are now by polygon instead of by vertex. They now look like they would in the game.
+
+Todo:
+- Add animation "loop" frame.
+- Correct animation "slerping".
+- Add translation to bones that need to use translation besides rotation.
+- Get barycentric coordinates within currently selected model triangle and return nearest vertex's bone.
+
+Animations will need to be tested within Yaz0r's LBA1 / LBA2 model viewer since my own implementation is still not perfect. Yaz0r's viewer can be downloaded from the Magic Ball network. Here is the link for that: https://www.magicball.net/downloads/programs/development/lba_model_viewer
 
 How one of my models looks in Yaz0r's program.
 [![Watch the video](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Images/Video_2.png)](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Videos/Custom_Hand_LBA2.mp4)
