@@ -6,14 +6,14 @@ The original idea was to be able to animate the models within Blender and export
 An example on how my Unity program can be used.
 [![Watch the video](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Images/Video_1.png)](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Videos/LBA2_Animator_Demo.mp4)
 
-Fixes:
+Additions / Fixes:
+- Selecting bones more easily. Triangles are now highlighted on the model.
 - Colors are now by polygon instead of by vertex. They now look like they would in the game.
 
 Todo:
 - Add animation "loop" frame.
 - Correct animation "slerping".
 - Add translation to bones that need to use translation besides rotation.
-- Get barycentric coordinates within currently selected model triangle and return nearest vertex's bone.
 
 Animations will need to be tested within Yaz0r's LBA1 / LBA2 model viewer since my own implementation is still not perfect. Yaz0r's viewer can be downloaded from the Magic Ball network. Here is the link for that: https://www.magicball.net/downloads/programs/development/lba_model_viewer
 
