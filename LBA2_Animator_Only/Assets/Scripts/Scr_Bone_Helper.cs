@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Scr_Bone_Helper : MonoBehaviour
 {
     public int index;
+
     public bool selected;
 
     public float rotX;
@@ -100,9 +101,9 @@ public class Scr_Bone_Helper : MonoBehaviour
                             
                             };
 
-                        rotX = controller.myFrames[controller.currentFrame - 1].bonesX[index];
-                        rotY = controller.myFrames[controller.currentFrame - 1].bonesY[index];
-                        rotZ = controller.myFrames[controller.currentFrame - 1].bonesZ[index];
+                            rotX = controller.myFrames[controller.currentFrame - 1].bonesX[index];
+                            rotY = controller.myFrames[controller.currentFrame - 1].bonesY[index];
+                            rotZ = controller.myFrames[controller.currentFrame - 1].bonesZ[index];
                         };
 
                     finalX = (short)(rotX * controller.rotationScale);
@@ -110,5 +111,30 @@ public class Scr_Bone_Helper : MonoBehaviour
                     finalZ = (short)(rotZ * controller.rotationScale);
                     };
             }
+
+        if (name == "bone_onion_" + index.ToString())
+        {
+            GameObject theBone = GameObject.Find("bone_onion_" + index.ToString());
+
+            if (index != 0)
+            {
+                if (index != 1)
+                {
+                    if (controller.animPlaying == false)
+                    {
+                        theBone.transform.localRotation = Quaternion.Euler(Vector3.right * rotX);
+                        theBone.transform.localRotation *= Quaternion.Euler(Vector3.back * rotZ);
+                        theBone.transform.localRotation *= Quaternion.Euler(Vector3.down * rotY);
+                    };
+                };
+            }
+
+            if (controller.currentFrame != 1)
+            {
+                rotX = controller.myFrames[controller.currentFrame - 2].bonesX[index];
+                rotY = controller.myFrames[controller.currentFrame - 2].bonesY[index];
+                rotZ = controller.myFrames[controller.currentFrame - 2].bonesZ[index];
+            };
+        };
         }
     }

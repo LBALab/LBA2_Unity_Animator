@@ -151,8 +151,6 @@ public class Scr_Controller : MonoBehaviour
     private Vector3[,] newTriangles;
     private int[] newTriangleIndices;
 
-    private Color[] newColorsRed;
-
     private int[,] trianglesColorsIndices; // this is used to sort the correct colors to the correct polygons
     private int[] newTriangleIndicesBlack;
     private int[] newTriangleIndicesBrown;
@@ -186,6 +184,19 @@ public class Scr_Controller : MonoBehaviour
 
 
 
+    private int nearestVertIndex;
+    private Vector3 nearestBone;
+
+    private GameObject highlightGameObject;
+    private Mesh highlightTriangle;
+    private Vector3[] highlightVertices = new Vector3[3];
+    public Material highlightMat;
+
+    private GameObject onionSkinGameObject; // used for showing the previous frame in an animation
+    private Mesh onionSkinMesh;
+    public Material onionMat;
+    private Vector3[] onionSkinVertices;
+    private bool onionSkinEnabled;
 
     private Mesh[] theMesh = new Mesh[MAX_COLORS];
     public Material[] theMat = new Material[MAX_COLORS];
@@ -221,8 +232,6 @@ public class Scr_Controller : MonoBehaviour
 
     void Start()
     {
-        //Debug.Log(getTriangleFromBone());
-
         // populate frame data
         myFrames = new ANM[MAX_FRAMES];
 
@@ -259,6 +268,26 @@ public class Scr_Controller : MonoBehaviour
 
         singleFrame.bonesQuat = new Quaternion[MAX_BONES];
 
+
+
+
+        // highlight triangle
+        highlightTriangle = new Mesh();
+        for (int i = 0; i < 3; i++)
+            highlightVertices[i] = new Vector3();
+
+        highlightGameObject = new GameObject();
+        highlightGameObject.name = "Highlight_Triangle";
+
+        highlightGameObject.AddComponent<MeshFilter>();
+        highlightGameObject.AddComponent<MeshRenderer>();
+
+        onionSkinMesh = new Mesh();
+        onionSkinGameObject = new GameObject();
+        onionSkinGameObject.name = "Onion_Skin";
+
+        onionSkinGameObject.AddComponent<MeshFilter>();
+        onionSkinGameObject.AddComponent<MeshRenderer>();
 
 
 
@@ -424,6 +453,45 @@ public class Scr_Controller : MonoBehaviour
             if (meshUsed[8] == true) theLM2[8].GetComponent<MeshCollider>().sharedMesh = theMesh[8];
             if (meshUsed[9] == true) theLM2[9].GetComponent<MeshCollider>().sharedMesh = theMesh[9];
 
+
+
+
+            // Update the onion skin model only on frames where necessary.
+            if (onionSkinEnabled == true)
+            {
+                if (animPlaying == false)
+                {
+                    if (currentFrame != 1)
+                        onionSkinGameObject.GetComponent<MeshRenderer>().enabled = true;
+                    else
+                        onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
+
+                    for (int i = 0; i < vertices; i++)
+                    {
+                        onionSkinVertices[i] = GameObject.Find("vertex_onion_" + i.ToString()).transform.position;
+
+                        // rotate the vertex from its bone's parent vertex
+                        GameObject.Find("vertex_onion_" + i.ToString()).transform.localRotation *= GameObject.Find("vertex_onion_" + i.ToString()).transform.parent.localRotation;
+                    };
+
+                    onionSkinMesh.vertices = onionSkinVertices;
+
+                    onionSkinMesh.RecalculateBounds();
+                    onionSkinMesh.RecalculateNormals();
+                }
+                else
+                {
+                    onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
+                };
+            }
+            else
+            {
+                onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
+            };
+
+
+
+
             if (animPlaying == false)
             {
                 if (boneSelected == true)
@@ -457,7 +525,6 @@ public class Scr_Controller : MonoBehaviour
                     GameObject.Find("Rotation_Arrow").transform.position = Vector3.zero;
                     GameObject.Find("Rotation_Arrow").transform.localRotation = Quaternion.identity;
                 };
-                //};
 
                 ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -467,34 +534,79 @@ public class Scr_Controller : MonoBehaviour
                     {
                         newPos = hit.point;
 
-                        //Debug.Log("hit!");
+                        //Debug.Log(hit.triangleIndex);
+                        //Debug.DrawLine(newVertices[myPolygons[hit.triangleIndex].V1], newVertices[myPolygons[hit.triangleIndex].V2]);
+                        //Debug.DrawLine(newVertices[myPolygons[hit.triangleIndex].V2], newVertices[myPolygons[hit.triangleIndex].V3]);
+                        //Debug.DrawLine(newVertices[myPolygons[hit.triangleIndex].V3], newVertices[myPolygons[hit.triangleIndex].V1]);
 
-                        // loop through vertices
-                        for (int j = 0; j < MAX_COLORS; j++)
+                        // we can find out what triangle we are touching by returning data from the hitpoint
+                        highlightVertices[0] = newVertices[myPolygons[hit.triangleIndex].V1];
+                        highlightVertices[1] = newVertices[myPolygons[hit.triangleIndex].V2];
+                        highlightVertices[2] = newVertices[myPolygons[hit.triangleIndex].V3];
+
+                        highlightTriangle.vertices = highlightVertices;
+                        highlightTriangle.triangles = new int[3] { 0, 2, 1 };
+
+                        highlightGameObject.GetComponent<MeshFilter>().mesh = highlightTriangle;
+                        highlightGameObject.GetComponent<MeshRenderer>().material = highlightMat;
+
+                        highlightTriangle.RecalculateBounds();
+                        highlightTriangle.RecalculateNormals();
+
+                        // get distance from hit point to the highlighted vertices
+                        // return the index of the closest one and use that for selecting bones
+                        nearestVertIndex = getSmallestInTriangle(hit.point, highlightVertices);
+
+                        //Debug.Log(nearestVertIndex);
+                        //Debug.DrawLine(hit.point, highlightVertices[nearestVertIndex])
+
+                        //nearestBone = newVertices[myBones[myPolygons[hit.triangleIndex].V1].parentVertex];
+                        //nearestBone = myVerticesParent[myBones[myPolygons[hit.triangleIndex].V1].parentVertex];
+                        //nearestBone = newVertices[myVerticesParent[myPolygons[hit.triangleIndex].V1]];
+                        //nearestBone = newVertices[myVerticesParent[myBones[myPolygons[hit.triangleIndex].V1].parentVertex]];
+                        //Debug.DrawLine(hit.point, nearestBone);
+
+                        if (Input.GetMouseButton(0))
                         {
-                            for (int i = 0; i < theMesh[j].vertices.Length; i++)
+                            // check the vertex's parent and rotate that specific bone - exclude the first two bones
+                            if (nearestVertIndex == 0)
                             {
-                                // check for closest ones
-                                if (Vector3.Distance(newPos, theMesh[j].vertices[i]) < 0.5f)
+                                if (myVerticesParent[myPolygons[hit.triangleIndex].V1] != 0 || myVerticesParent[myPolygons[hit.triangleIndex].V1] != 1)
                                 {
-                                    // draw a line indicating we have that vertex
-                                    Debug.DrawLine(Vector3.zero, theMesh[j].vertices[i]);
-
-                                    if (Input.GetMouseButton(0))
+                                    // rotate bone from our position
+                                    if (boneSelected == false)
                                     {
-                                        // check the vertex's parent and rotate that specific bone - exclude the first two bones
-                                        if (myVerticesParent[i] != 0 || myVerticesParent[i] != 1)
-                                        {
-                                            // rotate bone from our position
-                                            if (boneSelected == false)
-                                            {
-                                                selectedBone = GameObject.Find("bone_helper_" + myVerticesParent[i]);
+                                        selectedBone = GameObject.Find("bone_helper_" + myVerticesParent[myPolygons[hit.triangleIndex].V1]);
 
-                                                boneSelected = true;
-                                            };
-                                        };
+                                        boneSelected = true;
                                     };
-                                };
+                                }
+                            }
+                            else if (nearestVertIndex == 1)
+                            {
+                                if (myVerticesParent[myPolygons[hit.triangleIndex].V2] != 0 || myVerticesParent[myPolygons[hit.triangleIndex].V2] != 1)
+                                {
+                                    // rotate bone from our position
+                                    if (boneSelected == false)
+                                    {
+                                        selectedBone = GameObject.Find("bone_helper_" + myVerticesParent[myPolygons[hit.triangleIndex].V2]);
+
+                                        boneSelected = true;
+                                    };
+                                }
+                            }
+                            else if (nearestVertIndex == 2)
+                            {
+                                if (myVerticesParent[myPolygons[hit.triangleIndex].V3] != 0 || myVerticesParent[myPolygons[hit.triangleIndex].V3] != 1)
+                                {
+                                    // rotate bone from our position
+                                    if (boneSelected == false)
+                                    {
+                                        selectedBone = GameObject.Find("bone_helper_" + myVerticesParent[myPolygons[hit.triangleIndex].V3]);
+
+                                        boneSelected = true;
+                                    };
+                                }
                             };
                         };
                     };
@@ -503,11 +615,22 @@ public class Scr_Controller : MonoBehaviour
         };
     }
 
-    public int[] getTriangleFromBone()
+    public int getSmallestInTriangle(Vector3 theHit, Vector3[] verts)
     {
-        int[] myInt = new int[3];
+        int i;
+        int index = 0;
+        float temp = Vector3.Distance(theHit, verts[0]);
 
-        return myInt;
+        for (i = 0; i < 3; i++)
+        {
+            if (temp > Vector3.Distance(theHit, verts[i]))
+            {
+                index = i;
+                temp = Vector3.Distance(theHit, verts[i]);
+            };
+        };
+
+        return index;
     }
 
     public void loadLM2()
@@ -609,6 +732,8 @@ public class Scr_Controller : MonoBehaviour
             newTriangleIndicesPurple = new int[triangles * 3];
             trianglesColorsIndices = new int[MAX_COLORS, MAX_POLYGONS];
 
+            onionSkinVertices = new Vector3[vertices];
+
 
 
 
@@ -655,6 +780,14 @@ public class Scr_Controller : MonoBehaviour
                 originalVertices[i] = newVertices[i];
 
                 vertex.transform.position = newVertices[i] * vertexScale;
+
+
+
+
+                GameObject vertex_onion = new GameObject();
+                vertex_onion.name = "vertex_onion_" + i.ToString();
+
+                vertex_onion.transform.position = newVertices[i] * vertexScale;
             };
 
             // Create bone game objects as handles so the user can translate and rotate them.
@@ -665,11 +798,9 @@ public class Scr_Controller : MonoBehaviour
 
                 bone.transform.position = newVertices[myBones[i].parentVertex] * vertexScale;
 
-                //bone.AddComponent<BoxCollider>();
-                //bone.GetComponent<BoxCollider>().size = new Vector3(0.1f, 0.1f, 0.1f);
-
                 bone.AddComponent<Scr_Bone>();
                 bone.GetComponent<Scr_Bone>().index = i;
+
 
 
 
@@ -679,9 +810,16 @@ public class Scr_Controller : MonoBehaviour
                 boneHelper.AddComponent<Scr_Bone_Helper>();
                 boneHelper.GetComponent<Scr_Bone_Helper>().index = i;
 
-                //myBones[i].theMatrix = bone.transform.worldToLocalMatrix;
 
-                //Debug.Log(myBones[i].theMatrix);
+
+
+                GameObject boneOnion = new GameObject();
+                boneOnion.name = "bone_onion_" + i.ToString();
+
+                boneOnion.transform.position = newVertices[myBones[i].parentVertex] * vertexScale;
+
+                boneOnion.AddComponent<Scr_Bone_Helper>();
+                boneOnion.GetComponent<Scr_Bone_Helper>().index = i;
             };
 
             // Parent vertices to bones.
@@ -692,6 +830,15 @@ public class Scr_Controller : MonoBehaviour
                 for (int j = 0; j < bones; j++)
                     if (myVerticesParent[i] == j)
                         vertex.transform.SetParent(GameObject.Find("bone_" + j.ToString()).transform);
+
+
+
+
+                GameObject vertex_onion = GameObject.Find("vertex_onion_" + i.ToString());
+
+                for (int j = 0; j < bones; j++)
+                    if (myVerticesParent[i] == j)
+                        vertex_onion.transform.SetParent(GameObject.Find("bone_onion_" + j.ToString()).transform);
             };
 
             // Parent bones to parent bones.
@@ -703,6 +850,13 @@ public class Scr_Controller : MonoBehaviour
 
                     bone.transform.parent = GameObject.Find("bone_" + myBones[i].parentBone.ToString()).transform;
                     //bone.transform.SetParent(GameObject.Find("bone_" + myBones[i].parentBone.ToString()).transform);
+
+
+
+
+                    GameObject bone_onion = GameObject.Find("bone_onion_" + i.ToString());
+
+                    bone_onion.transform.parent = GameObject.Find("bone_onion_" + myBones[i].parentBone.ToString()).transform;
                 };
             };
 
@@ -931,6 +1085,21 @@ public class Scr_Controller : MonoBehaviour
                 theMesh[i].RecalculateNormals();
                 };
 
+            onionSkinMesh.vertices = onionSkinVertices;
+            onionSkinMesh.triangles = newTriangleIndices;
+
+            onionSkinGameObject.GetComponent<MeshFilter>().mesh = onionSkinMesh;
+            onionSkinGameObject.GetComponent<MeshRenderer>().material = onionMat;
+
+            onionSkinMesh.RecalculateBounds();
+            onionSkinMesh.RecalculateNormals();
+
+            /*CombineInstance[] myCombine = new CombineInstance[MAX_COLORS];
+            for (int i = 1; i < MAX_COLORS; i++)
+                myCombine[i].mesh = theMesh[i];
+
+            theLM2[0].GetComponent<MeshFilter>().sharedMesh.CombineMeshes(myCombine, false, false);*/
+
             modelLoaded = true;
             };
         }
@@ -1068,6 +1237,16 @@ public class Scr_Controller : MonoBehaviour
             GameObject.Find("Button_Enable_Movement").GetComponent<Image>().color = Color.gray;
         else
             GameObject.Find("Button_Enable_Movement").GetComponent<Image>().color = Color.white;
+    }
+
+    public void enableOnionSkin()
+    {
+        onionSkinEnabled = !onionSkinEnabled;
+
+        if (onionSkinEnabled == true)
+            GameObject.Find("Button_Enable_Onion_Skin").GetComponent<Image>().color = Color.gray;
+        else
+            GameObject.Find("Button_Enable_Onion_Skin").GetComponent<Image>().color = Color.white;
     }
 
     public void playANM()
