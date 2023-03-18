@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Scr_Controller : MonoBehaviour
-    {
+{
     // Folder properties.
     public string LM2Folder = "/LM2s/";
     public string LM2String = "Hat_Kid_LBA2.lm2";
@@ -26,19 +26,19 @@ public class Scr_Controller : MonoBehaviour
 
 
     // LBA2 model properties.
-    private const short BONESNUM =     0x20;
-    private const short BONESOFF =     0x24;
-    private const short VERTICESNUM =  0x28;
-    private const short VERTICESOFF =  0x2C;
-    private const short NORMALSNUM =   0x30;
-    private const short NORMALSOFF =   0x34;
+    private const short BONESNUM = 0x20;
+    private const short BONESOFF = 0x24;
+    private const short VERTICESNUM = 0x28;
+    private const short VERTICESOFF = 0x2C;
+    private const short NORMALSNUM = 0x30;
+    private const short NORMALSOFF = 0x34;
     private const short TRIANGLESNUM = 0x40;
     private const short TRIANGLESOFF = 0x44;
 
-    private const short MAX_FRAMES =   20;  // only 20 for now
-    private const short MAX_BONES =    30;  // only 30 bones (LBA2 limitation)
+    private const short MAX_FRAMES = 20;  // only 20 for now
+    private const short MAX_BONES = 30;  // only 30 bones (LBA2 limitation)
     private const short MAX_POLYGONS = 530; // only 530 (LBA2 limitation)
-    private const short MAX_COLORS =   10;  // since we only have 10 colors for now
+    private const short MAX_COLORS = 10;  // since we only have 10 colors for now
 
     public short bones;
     public short bonesLoaded; // for loading animations
@@ -57,18 +57,18 @@ public class Scr_Controller : MonoBehaviour
     // LBA2 model struct properties.
     [System.Serializable]
     public struct BONE
-        {
+    {
         public int index;
 
         public short parentBone;
         public short parentVertex;
         public short numOfVertices;
         public short padding;
-        };
+    };
 
     [System.Serializable]
     public struct POLYGON
-        {
+    {
         public short polygonType;
         public short amountTris;
         public short amountBytes;
@@ -79,37 +79,37 @@ public class Scr_Controller : MonoBehaviour
         public short padding2;
         public short color;
         public short padding3;
-        };
+    };
 
     [System.Serializable]
     public enum LBA2Colors
-        {
-        LBA2_COLORS_BLACK_ID =  0, // black 
-        LBA2_COLORS_BROWN_ID =  1, // brown
-        LBA2_COLORS_TAN_ID =    2, // tan
-        LBA2_COLORS_GRAY_ID =   3, // gray
-        LBA2_COLORS_RED_ID =    4, // red
+    {
+        LBA2_COLORS_BLACK_ID = 0, // black 
+        LBA2_COLORS_BROWN_ID = 1, // brown
+        LBA2_COLORS_TAN_ID = 2, // tan
+        LBA2_COLORS_GRAY_ID = 3, // gray
+        LBA2_COLORS_RED_ID = 4, // red
         LBA2_COLORS_ORANGE_ID = 5, // orange
         LBA2_COLORS_YELLOW_ID = 6, // yellow
-        LBA2_COLORS_GREEN_ID =  7, // green
-        LBA2_COLORS_BLUE_ID =   8, // blue
+        LBA2_COLORS_GREEN_ID = 7, // green
+        LBA2_COLORS_BLUE_ID = 8, // blue
         LBA2_COLORS_PURPLE_ID = 9, // purple
 
-        LBA2_COLORS_BLACK =  4096, // black (actual value)
-        LBA2_COLORS_BROWN =  4112, // brown (actual value)
-        LBA2_COLORS_TAN =    4128, // tan (actual value)
-        LBA2_COLORS_GRAY =   4144, // gray (actual value)
-        LBA2_COLORS_RED =    4160, // red (actual value)
+        LBA2_COLORS_BLACK = 4096, // black (actual value)
+        LBA2_COLORS_BROWN = 4112, // brown (actual value)
+        LBA2_COLORS_TAN = 4128, // tan (actual value)
+        LBA2_COLORS_GRAY = 4144, // gray (actual value)
+        LBA2_COLORS_RED = 4160, // red (actual value)
         LBA2_COLORS_ORANGE = 4176, // orange (actual value)
         LBA2_COLORS_YELLOW = 4192, // yellow (actual value)
-        LBA2_COLORS_GREEN =  4224, // green (actual value)
-        LBA2_COLORS_BLUE =   4288, // blue (actual value)
+        LBA2_COLORS_GREEN = 4224, // green (actual value)
+        LBA2_COLORS_BLUE = 4288, // blue (actual value)
         LBA2_COLORS_PURPLE = 4304, // purple (actual value)
-        };
+    };
 
     [System.Serializable]
     public struct ANM
-        {
+    {
         public short speed; // frame speed
 
         public short moveX; // movement x
@@ -127,8 +127,11 @@ public class Scr_Controller : MonoBehaviour
         public float[] bonesY;
         public float[] bonesZ;
 
+        public float speedAsFloat;
+        public float speedNormalized;
+
         public Quaternion[] bonesQuat; // used in editor - only for smooth quaternion lerping
-        };
+    };
 
 
 
@@ -163,22 +166,22 @@ public class Scr_Controller : MonoBehaviour
     private int[] newTriangleIndicesBlue;
     private int[] newTriangleIndicesPurple;
 
-    private Color colBlack =  new Color(0.0f, 0.0f, 0.0f);
-    private Color colBrown =  new Color(128 * 0.004f, 64 * 0.004f, 0);
-    private Color colTan =    new Color(255 * 0.004f, 210 * 0.004f, 164 * 0.004f);
-    private Color colGray =   new Color(192 * 0.004f, 192 * 0.004f, 192 * 0.004f);
-    private Color colRed =    new Color(1, 0, 0);
+    private Color colBlack = new Color(0.0f, 0.0f, 0.0f);
+    private Color colBrown = new Color(128 * 0.004f, 64 * 0.004f, 0);
+    private Color colTan = new Color(255 * 0.004f, 210 * 0.004f, 164 * 0.004f);
+    private Color colGray = new Color(192 * 0.004f, 192 * 0.004f, 192 * 0.004f);
+    private Color colRed = new Color(1, 0, 0);
     private Color colOrange = new Color(255 * 0.004f, 128 * 0.004f, 0);
     private Color colYellow = new Color(215 * 0.004f, 215 * 0.004f, 0);
-    private Color colGreen =  new Color(0, 1, 0);
-    private Color colBlue =   new Color(0, 0, 1);
+    private Color colGreen = new Color(0, 1, 0);
+    private Color colBlue = new Color(0, 0, 1);
     private Color colPurple = new Color(128 * 0.004f, 0, 255 * 0.004f);
 
     public short frames = 1;
     public short frameLoop = 0;
     public float frameTime = 0.0f;
     public short currentFrame = 1;
-    public bool  frameAltered = false;
+    public bool frameAltered = false;
     public float frameSpeedAltered = 0.0f;
     public GameObject[] frameButtons;
 
@@ -225,7 +228,7 @@ public class Scr_Controller : MonoBehaviour
 
     public float vertexScale = 0.01f;
     public float rotationScale = 11.333333f; // do not edit as this is crucial to bone rotations
-    public float frameScale = 0.001f; // do not edit as this is crucial to animation speed
+    public float frameScale = 0.0035f; // do not edit as this is crucial to animation speed
 
 
 
@@ -236,7 +239,7 @@ public class Scr_Controller : MonoBehaviour
         myFrames = new ANM[MAX_FRAMES];
 
         for (int i = 0; i < MAX_FRAMES; i++)
-            {
+        {
             myFrames[i] = new ANM();
 
             myFrames[i].bonesType = new short[MAX_BONES]; // create arrays
@@ -245,20 +248,20 @@ public class Scr_Controller : MonoBehaviour
             myFrames[i].bonesZ = new float[MAX_BONES];
 
             myFrames[i].bonesQuat = new Quaternion[MAX_BONES];
-            };
+        };
 
         for (int i = 0; i < MAX_BONES; i++)
-            {
+        {
             for (int j = 0; j < MAX_FRAMES; j++)
-                {
+            {
                 myFrames[j].bonesType[i] = new short(); // fill arrays
                 myFrames[j].bonesX[i] = new float();
                 myFrames[j].bonesY[i] = new float();
                 myFrames[j].bonesZ[i] = new float();
 
                 myFrames[j].bonesQuat[i] = new Quaternion();
-                };
             };
+        };
 
         singleFrame.bonesType = new short[MAX_BONES];
 
@@ -292,8 +295,8 @@ public class Scr_Controller : MonoBehaviour
 
 
         // populate list with all LM2 models that exist in the folder
-        List<string> modelOptions = new List<string>{ };
-        List<string> anmOptions = new List<string>{ };
+        List<string> modelOptions = new List<string> { };
+        List<string> anmOptions = new List<string> { };
 
         // get all of the model files from directory - easier than making our own list by hand
         DirectoryInfo dirLM2 = new DirectoryInfo(Application.dataPath + LM2Folder);
@@ -303,7 +306,7 @@ public class Scr_Controller : MonoBehaviour
             modelOptions.Add(f.Name.Replace(Application.dataPath, "")); // get only the file name, not the entire directory name
 
         DirectoryInfo dirANM = new DirectoryInfo(Application.dataPath + ANMFolder);
-        FileInfo[]  infoANM = dirANM.GetFiles("*.anm"); // get all files with the ANM extension
+        FileInfo[] infoANM = dirANM.GetFiles("*.anm"); // get all files with the ANM extension
 
         foreach (FileInfo f in infoANM)
             anmOptions.Add(f.Name.Replace(Application.dataPath, "")); // get only the file name, not the entire directory name
@@ -318,7 +321,7 @@ public class Scr_Controller : MonoBehaviour
         GameObject.Find("Text_Frames").GetComponent<Text>().text = "Frames: " + frames.ToString();
         GameObject.Find("Text_Frame_Loop").GetComponent<Text>().text = "Frame Loop: " + frameLoop.ToString();
         GameObject.Find("Text_Current_Frame").GetComponent<Text>().text = "Current Frame: " + currentFrame.ToString();
-
+        GameObject.Find("Text_Debug_Info").GetComponent<Text>().text = "Debug Info: " + frameTime.ToString();
 
 
 
@@ -371,14 +374,26 @@ public class Scr_Controller : MonoBehaviour
 
         if (animPlaying == true)
         {
-            // begin animation
-            //frameTime += 0.05f;
-
             // the bigger the frame speed, the longer the frame lasts
-            frameTime += (Time.deltaTime);
+            // however, the bigger the frame speed, the faster the frame lasts
+            // we need to do the opposite
+            // as far as I know, animation values go from 0 to 4096 (as a short)
+            // so, what we do is take 4096 and subtract it from the speed of the current frame
+            // then, we multiply it by a scalar and traverse the animation by that speed
 
-            // go to next frame
-            if (frameTime > (myFrames[currentFrame - 1].speed * frameScale)) // best one
+            myFrames[currentFrame - 1].speedAsFloat = ((4096 - myFrames[currentFrame - 1].speed) * frameScale);
+            frameTime += myFrames[currentFrame - 1].speedAsFloat;
+
+            // still, we need to get the time from the beginning speed to the ending speed of the frame
+            // to do this, we normalize our speed (float) in comparison to the other speed (short)
+            // finally, we increase the normalized speed by the difference value
+            // the bones (in Scr_Bone_Helper.cs) will lerp (as a quaternion) by the amount of "myFrames[currentFrame - 1].speedNormalized"
+
+            float differenceValue = normalizeFloat(myFrames[currentFrame - 1].speedAsFloat, 0.0f, myFrames[currentFrame - 1].speed);
+            myFrames[currentFrame - 1].speedNormalized += differenceValue;
+
+            // if greater than the frame's speed, go to the next frame
+            if (frameTime > myFrames[currentFrame - 1].speed)
             {
                 currentFrame += 1;
 
@@ -388,8 +403,26 @@ public class Scr_Controller : MonoBehaviour
             // restart animation
             if (currentFrame > frames)
             {
+                resetFrameSpeeds();
+
                 currentFrame = (short)(frameLoop + 1); // start from where the loop begins
             };
+
+
+
+
+            // perform animation movement
+            // https://forum.unity.com/threads/find-a-point-on-a-line-between-two-vector3.140700/
+            for (int i = 0; i < vertices; i++)
+            {
+                // smoothly translate from one frame to the next
+
+                //Vector3 startingPos = (newVertices[i] - animVertices[i]);
+
+                //animVertices[i] = animVertices[i] + (frameTime * startingPos);
+
+                //Debug.DrawLine(animVertices[i], newVertices[i]);
+            }
         };
 
 
@@ -425,6 +458,8 @@ public class Scr_Controller : MonoBehaviour
             // Update the vertices.
             for (int i = 0; i < vertices; i++)
             {
+                //if (animPlaying == false)
+                //{
                 newVertices[i] = GameObject.Find("vertex_" + i.ToString()).transform.position;
 
                 // rotate the vertex from its bone's parent vertex
@@ -434,7 +469,10 @@ public class Scr_Controller : MonoBehaviour
             // update the model
             for (int i = 0; i < MAX_COLORS; i++)
             {
+                //if (animPlaying == false)
                 theMesh[i].vertices = newVertices;
+                //else
+                //theMesh[i].vertices = animVertices;
 
                 theMesh[i].RecalculateBounds();
                 theMesh[i].RecalculateNormals();
@@ -442,16 +480,19 @@ public class Scr_Controller : MonoBehaviour
 
             // though each mesh exists, we still need to check if it actually has any elements
             // if it does, then we will update it
-            if (meshUsed[0] == true) theLM2[0].GetComponent<MeshCollider>().sharedMesh = theMesh[0];
-            if (meshUsed[1] == true) theLM2[1].GetComponent<MeshCollider>().sharedMesh = theMesh[1];
-            if (meshUsed[2] == true) theLM2[2].GetComponent<MeshCollider>().sharedMesh = theMesh[2];
-            if (meshUsed[3] == true) theLM2[3].GetComponent<MeshCollider>().sharedMesh = theMesh[3];
-            if (meshUsed[4] == true) theLM2[4].GetComponent<MeshCollider>().sharedMesh = theMesh[4];
-            if (meshUsed[5] == true) theLM2[5].GetComponent<MeshCollider>().sharedMesh = theMesh[5];
-            if (meshUsed[6] == true) theLM2[6].GetComponent<MeshCollider>().sharedMesh = theMesh[6];
-            if (meshUsed[7] == true) theLM2[7].GetComponent<MeshCollider>().sharedMesh = theMesh[7];
-            if (meshUsed[8] == true) theLM2[8].GetComponent<MeshCollider>().sharedMesh = theMesh[8];
-            if (meshUsed[9] == true) theLM2[9].GetComponent<MeshCollider>().sharedMesh = theMesh[9];
+            if (animPlaying == false)
+            {
+                if (meshUsed[0] == true) theLM2[0].GetComponent<MeshCollider>().sharedMesh = theMesh[0];
+                if (meshUsed[1] == true) theLM2[1].GetComponent<MeshCollider>().sharedMesh = theMesh[1];
+                if (meshUsed[2] == true) theLM2[2].GetComponent<MeshCollider>().sharedMesh = theMesh[2];
+                if (meshUsed[3] == true) theLM2[3].GetComponent<MeshCollider>().sharedMesh = theMesh[3];
+                if (meshUsed[4] == true) theLM2[4].GetComponent<MeshCollider>().sharedMesh = theMesh[4];
+                if (meshUsed[5] == true) theLM2[5].GetComponent<MeshCollider>().sharedMesh = theMesh[5];
+                if (meshUsed[6] == true) theLM2[6].GetComponent<MeshCollider>().sharedMesh = theMesh[6];
+                if (meshUsed[7] == true) theLM2[7].GetComponent<MeshCollider>().sharedMesh = theMesh[7];
+                if (meshUsed[8] == true) theLM2[8].GetComponent<MeshCollider>().sharedMesh = theMesh[8];
+                if (meshUsed[9] == true) theLM2[9].GetComponent<MeshCollider>().sharedMesh = theMesh[9];
+            };
 
 
 
@@ -488,7 +529,7 @@ public class Scr_Controller : MonoBehaviour
             {
                 onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
             };
-
+            loadOnionSkin();
 
 
 
@@ -534,11 +575,6 @@ public class Scr_Controller : MonoBehaviour
                     {
                         newPos = hit.point;
 
-                        //Debug.Log(hit.triangleIndex);
-                        //Debug.DrawLine(newVertices[myPolygons[hit.triangleIndex].V1], newVertices[myPolygons[hit.triangleIndex].V2]);
-                        //Debug.DrawLine(newVertices[myPolygons[hit.triangleIndex].V2], newVertices[myPolygons[hit.triangleIndex].V3]);
-                        //Debug.DrawLine(newVertices[myPolygons[hit.triangleIndex].V3], newVertices[myPolygons[hit.triangleIndex].V1]);
-
                         // we can find out what triangle we are touching by returning data from the hitpoint
                         highlightVertices[0] = newVertices[myPolygons[hit.triangleIndex].V1];
                         highlightVertices[1] = newVertices[myPolygons[hit.triangleIndex].V2];
@@ -556,15 +592,6 @@ public class Scr_Controller : MonoBehaviour
                         // get distance from hit point to the highlighted vertices
                         // return the index of the closest one and use that for selecting bones
                         nearestVertIndex = getSmallestInTriangle(hit.point, highlightVertices);
-
-                        //Debug.Log(nearestVertIndex);
-                        //Debug.DrawLine(hit.point, highlightVertices[nearestVertIndex])
-
-                        //nearestBone = newVertices[myBones[myPolygons[hit.triangleIndex].V1].parentVertex];
-                        //nearestBone = myVerticesParent[myBones[myPolygons[hit.triangleIndex].V1].parentVertex];
-                        //nearestBone = newVertices[myVerticesParent[myPolygons[hit.triangleIndex].V1]];
-                        //nearestBone = newVertices[myVerticesParent[myBones[myPolygons[hit.triangleIndex].V1].parentVertex]];
-                        //Debug.DrawLine(hit.point, nearestBone);
 
                         if (Input.GetMouseButton(0))
                         {
@@ -633,8 +660,13 @@ public class Scr_Controller : MonoBehaviour
         return index;
     }
 
+    public float normalizeFloat(float value, float min, float max)
+    {
+        return (value - min) / (max - min);
+    }
+
     public void loadLM2()
-        {
+    {
         //GameObject theLM2 = new GameObject();
 
         if (modelLoaded == false)
@@ -669,7 +701,7 @@ public class Scr_Controller : MonoBehaviour
             theLM2[7].name = (theLM2[7].name + "_Green");
             theLM2[8].name = (theLM2[8].name + "_Blue");
             theLM2[9].name = (theLM2[9].name + "_Purple");
-            
+
 
 
 
@@ -716,6 +748,7 @@ public class Scr_Controller : MonoBehaviour
 
             originalVertices = new Vector3[vertices];
             newVertices = new Vector3[vertices]; // Fill up the vertex array.
+            //animVertices = new Vector3[vertices];
             newNormals = new Vector3[normals]; // Fill up the normal array.
             newTriangleIndices = new int[triangles * 3]; // Fill up the triangle vertex indices array.
             newTriangles = new Vector3[triangles, 3]; // Fill up the triangle vertex positions array.
@@ -1061,7 +1094,7 @@ public class Scr_Controller : MonoBehaviour
 
             // Assign elements to Unity mesh.
             for (int i = 0; i < MAX_COLORS; i++)
-                {
+            {
                 // all meshes share the same vertices and normals but different triangles
                 theMesh[i].vertices = newVertices;
                 theMesh[i].normals = newNormals;
@@ -1083,7 +1116,7 @@ public class Scr_Controller : MonoBehaviour
 
                 theMesh[i].RecalculateBounds();
                 theMesh[i].RecalculateNormals();
-                };
+            };
 
             onionSkinMesh.vertices = onionSkinVertices;
             onionSkinMesh.triangles = newTriangleIndices;
@@ -1101,8 +1134,8 @@ public class Scr_Controller : MonoBehaviour
             theLM2[0].GetComponent<MeshFilter>().sharedMesh.CombineMeshes(myCombine, false, false);*/
 
             modelLoaded = true;
-            };
-        }
+        };
+    }
 
     public void recordFrame()
     {
@@ -1135,7 +1168,7 @@ public class Scr_Controller : MonoBehaviour
     public void copyFrame()
     {
         for (int i = 0; i < bones; i++)
-            {
+        {
             singleFrame.speed = myFrames[currentFrame - 1].speed;
 
             singleFrame.moveX = myFrames[currentFrame - 1].moveX;
@@ -1149,13 +1182,13 @@ public class Scr_Controller : MonoBehaviour
             singleFrame.bonesX[i] = myFrames[currentFrame - 1].bonesX[i];
             singleFrame.bonesY[i] = myFrames[currentFrame - 1].bonesY[i];
             singleFrame.bonesZ[i] = myFrames[currentFrame - 1].bonesZ[i];
-            };
+        };
     }
 
     public void pasteFrame()
     {
         for (int i = 0; i < bones; i++)
-            {
+        {
             myFrames[currentFrame - 1].speed = singleFrame.speed;
 
             myFrames[currentFrame - 1].moveX = singleFrame.moveX;
@@ -1169,7 +1202,7 @@ public class Scr_Controller : MonoBehaviour
             myFrames[currentFrame - 1].bonesX[i] = singleFrame.bonesX[i];
             myFrames[currentFrame - 1].bonesY[i] = singleFrame.bonesY[i];
             myFrames[currentFrame - 1].bonesZ[i] = singleFrame.bonesZ[i];
-            };
+        };
         loadFrame();
     }
 
@@ -1206,27 +1239,29 @@ public class Scr_Controller : MonoBehaviour
     public void resetFrame()
     {
         for (int i = 0; i < bones; i++)
-            {
+        {
             GameObject.Find("bone_helper_" + i.ToString()).GetComponent<Scr_Bone_Helper>().rotX = 0.0f;
             GameObject.Find("bone_helper_" + i.ToString()).GetComponent<Scr_Bone_Helper>().rotY = 0.0f;
             GameObject.Find("bone_helper_" + i.ToString()).GetComponent<Scr_Bone_Helper>().rotZ = 0.0f;
-            };
+        };
 
         frameAltered = true;
     }
 
     public void loadFrame()
     {
+        loadOnionSkin();
+
         frameSpeedAltered = myFrames[currentFrame - 1].speed;
 
         GameObject.Find("Slider_Frame_Speed").GetComponent<Slider>().value = myFrames[currentFrame - 1].speed;
 
         for (int i = 0; i < bones; i++)
-            {
+        {
             GameObject.Find("bone_helper_" + i.ToString()).GetComponent<Scr_Bone_Helper>().rotX = myFrames[currentFrame - 1].bonesX[i];
             GameObject.Find("bone_helper_" + i.ToString()).GetComponent<Scr_Bone_Helper>().rotY = myFrames[currentFrame - 1].bonesY[i];
             GameObject.Find("bone_helper_" + i.ToString()).GetComponent<Scr_Bone_Helper>().rotZ = myFrames[currentFrame - 1].bonesZ[i];
-            };
+        };
     }
 
     public void enableMovement()
@@ -1247,6 +1282,55 @@ public class Scr_Controller : MonoBehaviour
             GameObject.Find("Button_Enable_Onion_Skin").GetComponent<Image>().color = Color.gray;
         else
             GameObject.Find("Button_Enable_Onion_Skin").GetComponent<Image>().color = Color.white;
+    }
+
+    public void setFrameLoop()
+    {
+        frameLoop = currentFrame;
+    }
+
+    public void loadOnionSkin()
+    {
+        /*if (onionSkinEnabled == true)
+        {
+            if (animPlaying == false)
+            {
+                if (currentFrame != 1)
+                    onionSkinGameObject.GetComponent<MeshRenderer>().enabled = true;
+                else
+                    onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
+
+                for (int i = 0; i < vertices; i++)
+                {
+                    onionSkinVertices[i] = GameObject.Find("vertex_onion_" + i.ToString()).transform.position;
+
+                    // rotate the vertex from its bone's parent vertex
+                    GameObject.Find("vertex_onion_" + i.ToString()).transform.localRotation *= GameObject.Find("vertex_onion_" + i.ToString()).transform.parent.localRotation;
+                };
+
+                onionSkinMesh.vertices = onionSkinVertices;
+
+                onionSkinMesh.RecalculateBounds();
+                onionSkinMesh.RecalculateNormals();
+            }
+            else
+            {
+                onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
+            };
+        }
+        else
+        {
+            onionSkinGameObject.GetComponent<MeshRenderer>().enabled = false;
+        };*/
+    }
+
+    public void resetFrameSpeeds()
+    {
+        for (int i = 0; i < MAX_FRAMES; i++)
+        {
+            myFrames[i].speedAsFloat = 0.0f;
+            myFrames[i].speedNormalized = 0.0f;
+        };
     }
 
     public void playANM()
@@ -1276,7 +1360,9 @@ public class Scr_Controller : MonoBehaviour
             };
 
         animPlaying = !animPlaying;
+
         loadFrame();
+        resetFrameSpeeds();
         };
     }
 
