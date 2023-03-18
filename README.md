@@ -7,13 +7,20 @@ An example on how my Unity program can be used.
 [![Watch the video](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Images/Video_1.png)](https://github.com/MrQuetch/LBA2_Unity_Animator/blob/main/LBA2_Animator_Only/Videos/LBA2_Animator_Demo.mp4)
 
 Additions / Fixes:
+- Added a button to change the frame when the animation loops.
+- Animations are now near perfect. Timing between frames is about right. Could still use some tweaking.
 - Selecting bones more easily. Triangles are now highlighted on the model.
 - Colors are now by polygon instead of by vertex. They now look like they would in the game.
 
 Todo:
-- Add animation "loop" frame.
-- Correct animation "slerping".
 - Add translation to bones that need to use translation besides rotation.
+
+Controls:
+- Q and E: Move camera up and down.
+- W, A, S, and D: Move camera forward, backward, left, and right.
+- X, C, and Z: Rotate bones on X, Y, and Z axes.
+- Mouse (Left Button): Select a bone. When selected, move the mouse while holding X, C, or Z, to rotate on specific axes.
+- Mouse (Right Button): Rotate the camera. Only works when a model has been loaded in the editor.
 
 Animations will need to be tested within Yaz0r's LBA1 / LBA2 model viewer since my own implementation is still not perfect. Yaz0r's viewer can be downloaded from the Magic Ball network. Here is the link for that: https://www.magicball.net/downloads/programs/development/lba_model_viewer
 
